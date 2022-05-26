@@ -1,0 +1,249 @@
+#!/usr/bin/env bash
+
+# Skrip ini adalah wrapper script bagi https://github.com/Udayraj123/OMRChecker.
+#
+# OMRChecker adalah piranti lunak untuk melakukan Optical Markup Recognition
+# (OMR) pada berkas Lembar Jawaban Komputer (LJK).
+#
+# Seringkali murid tidak menyilang jawaban pada LJK secara tebal sehingga tidak
+# dapat dikenali secara sempurna oleh OMRChecker. Skrip ini akan menebalkan
+# jawaban LJK dengan bantuan imagemagick:
+# 1. Mengubah gambar LJK menjadi hitam putih. Misal LJK berwarna biru, maka
+#    yang tertinggal adalah tanda alat tulis berwarna hitam.
+# 2. Menebalkan gambar hitam tersisa agar lebih mudah di-OMR.
+# 3. Melakukan OMR.
+#
+# Menurut sang pengembang ada dua cara untuk meningkatkan deteksi:
+# (1). mengubah nilai GLOBAL_PAGE_THRESHOLD_WHITE pada berkas src/constant.py
+# (2). menambahkan baris img = cv2.convertScaleAbs(img, alpha=1.5, beta=0)
+#      setelah baris img = image.copy(). Sesuaikan nilai alpha dan beta hingga
+#      mendapat hasil yang diharapkan.
+# Namun saya tidak mendapat hasil memuaskan menggunakan kedua cara tersebut.
+#
+# Dependencies:
+# - ImageMagick
+#
+# LICENSE ----------------------------------------------------------------------
+#
+# This is free and unencumbered software released into the public domain.
+#
+# Anyone is free to copy, modify, publish, use, compile, sell, or
+# distribute this software, either in source code form or as a compiled
+# binary, for any purpose, commercial or non-commercial, and by any
+# means.
+#
+# In jurisdictions that recognize copyright laws, the author or authors
+# of this software dedicate any and all copyright interest in the
+# software to the public domain. We make this dedication for the benefit
+# of the public at large and to the detriment of our heirs and
+# successors. We intend this dedication to be an overt act of
+# relinquishment in perpetuity of all present and future rights to this
+# software under copyright law.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+# OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+# For more information, please refer to <http://unlicense.org>
+#
+# ------------------------------------------------------------------------------
+
+THIS_DIR=$(cd "${0%/*}" || exit; pwd)
+cd "$THIS_DIR" || exit
+
+# VARIABLES --------------------------------------------------------------------
+
+INPUT="$THIS_DIR/inputs"
+OLAH=true
+# Sesuaikan dengan PATH atau ENV python yang digunakan.
+VENV="${HOME}/.pip"
+OMRCHECKER=( "${VENV}/bin/python3" "${THIS_DIR}/main.py")
+#OMRCHECKER=( "/usr/bin/python3" "${THIS_DIR}/main.py")
+OUTPUT="$THIS_DIR/outputs"
+TMPDIR=$(mktemp -d)
+
+# FUNCTIONS --------------------------------------------------------------------
+
+# Teks berwarna coklat.
+teks_c() { printf '\e[33m:: %s\n\e[m' "$@"; }
+
+bantuan() {
+  printf '%s\n' "
+  ${0##*/} adalah skrip alat bantu OMRChecker untuk melakukan
+  Optical Markup Recognition (OMR) pada kertas Lembar Jawaban Komputer (LJK).
+
+  Penggunaan: ${0##*/} PILIHAN
+
+  PILIHAN:
+    -d              Pasang paket yang dibutuhkan.
+    -h              Tampilkan pesan ini.
+    -i INPUT_DIR    Letak gambar LJK yang akan di-OMR.
+    -o OUTPUT_DIR   Letak hasil OMR akan disimpan.
+    -p              Pasang pustaka python yang dibutuhkan ke ${HOME}/.pip.
+    -r              Langsung OMR tanpa mengolah gambar terlebih dahulu.
+    -v              Tampilkan versi skrip.
+
+  Setiap direktori input harus memiliki template.json.
+
+  Jika dijalankan tanpa argumen -i atau -o maka skrip akan menggunakan:
+  -i di $INPUT
+  -o di $OUTPUT
+
+  Apa yang skrip ini lakukan adalah sebagai berikut:
+  1. Mengubah gambar LJK menjadi hitam putih.
+  2. Menebalkan bagian hitam agar lebih mudah di-OMR.
+  3. Melakukan OMR.
+
+
+  Contoh:
+    - Melakukan OMR pada berkas hasil pemindaian yang terletak dalam ~/IPA:
+
+      $ ${0##*/} -i ${HOME}/IPA
+
+    - Menyimpan hasil OMR ke dalam map ${HOME}/NILAI_IPA:
+
+      $ ${0##*/} -o ${HOME}/NILAI_IPA
+
+    - Melakukan OMR pada berkas hasil pemindaian yang terletak dalam ~/IPA
+      dan menyimpan hasilnya ke dalam map ${HOME}/NILAI_IPA:
+
+      $ ${0##*/} -i ${HOME}/IPA -o ${HOME}/NILAI_IPA
+
+    - Jika ada berkas yang tidak sempurna di-OMR misal karena jawaban terdeteksi
+      ganda, gunakan argumen -r untuk langsung melakukan OMR tanpa mengolah
+      gambar terlebih dahulu.
+      Mungkin diperlukan untuk menyunting gambar input secara manual.
+
+      $ ${0##*/} -i ${HOME}/IPA -r
+
+  ${0##*/} hanyalah skrip pembantu (helper/wrapper script) untuk otomasi
+  OMR model LJK seperti tampak dalam map samples/community/eljeka.
+
+  Jika mempunyai bentuk LJK berbeda, silakan rujuk
+  https://github.com/Udayraj123/OMRChecker untuk langsung menggunakan
+  OMRChecker dan atau membuat template.json sendiri.
+"
+  exit
+}
+
+olah_gambar() {
+  echo 'Mengolah gambar. Harap tunggu.'
+  mkdir -p "$TMPDIR"/{1,2}
+
+  for i in "${@:2}"; do
+    if [[ "$i" == *'/'* ]]; then
+      CONV="${i%/*}"
+      mkdir -p "$TMPDIR"/{1,2}/"$CONV"
+    fi
+    # Ambil nama berkas.
+    LJK="${i##*/}"
+    printf '%s\r' "Mengubah $LJK menjadi hitam putih                           "
+    # Ubah akhiran berkas.
+    LJK=${LJK%.*}.jpg
+    convert "$1/$i" -fill white -fuzz 50% +opaque black "$TMPDIR/1/$CONV/$LJK"
+    printf '%s\r' "Menebalkan gambar pada $LJK                                 "
+    convert "$TMPDIR/1/$CONV/$LJK" \( \
+            -clone 0 \
+            -fuzz 50% \
+            -fill none \
+            -draw "matte 0,0 floodfill" \
+            -alpha extract \
+            -morphology edgeout disk:5 \
+            -negate \) -compose multiply -composite "$TMPDIR/2/$CONV/$LJK"
+  done
+}
+
+periksa_input() {
+  if [[ -z "$*" ]]; then
+    teks_c  '' 'Tidak menemukan gambar LJK hasil pemindaian (scan)!' \
+            '1. Simpan gambar hasil pemindaian ke dalam map "inputs":' \
+            "   $INPUT" \
+            '2. Atau, berikan argumen -i dan letak berkas hasil pindai. Misal:' \
+            "   $ ${0##*/} -i /tmp/Matematika" ''
+    exit 1
+  fi
+}
+
+salin_template() {
+  echo 'Menyalin template dan lembar jawaban.'
+  # Need to do this cd as can't omitting base dir from the find result.
+  cd "$INPUT" || exit
+  # Copy answer_key.csv, evaluation.json, and template.json.
+  while read -r cjson; do
+    cp "${INPUT}/${cjson}" "${TMPDIR}/2/${cjson}"
+  done < <(find . -mindepth 1 -type f \( -iname "*.csv" -o -iname "*.json" \) -printf '%P\n')
+  cd "$THIS_DIR" || exit
+}
+
+# MAIN -------------------------------------------------------------------------
+
+# Memeriksa paket yang menjadi ketergantungan (dependensi).
+if ! command -v convert &>/dev/null ; then
+  teks_c 'Aplikasi convert tidak ditemukan.'
+  echo 'Pastikan paket imagemagick telah terpasang.'
+  exit 1
+fi
+
+# Cleanup after an unexpected event.
+trap 'rm -r "$TMPDIR"; exit' SIGINT ERR
+
+while getopts ":dhi:o:prv" opt; do
+  case $opt in
+    d)
+      sudo apt install build-essential cmake unzip pkg-config libjpeg-dev libpng-dev libtiff-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libatlas-base-dev gfortran imagemagick
+      exit
+    ;;
+    h)
+      bantuan
+    ;;
+    i)
+      INPUT="$OPTARG"
+    ;;
+    o)
+      OUTPUT="$OPTARG"
+      [[ -d "$OPTARG" ]] || mkdir -p "$OPTARG"
+    ;;
+    p)
+      python3 -m venv "$VENV"
+      "${VENV}/bin/pip3" install opencv-python opencv-contrib-python
+      "${VENV}/bin/pip3" install -r "${THIS_DIR}"/requirements.txt
+      exit
+    ;;
+    r)
+      OLAH=false
+    ;;
+    v)
+      echo ':: eljeka v0.2 (2024.05.11) - written by si_kabayan'
+      exit
+    ;;
+    \?)
+      teks_c "Opsi salah: -$OPTARG" >&2
+      exit 1
+    ;;
+    :)
+      teks_c "Opsi -$OPTARG membutuhkan sebuah argumen." >&2
+      exit 1
+    ;;
+  esac
+done
+
+mapfile -t LJKS < <(find "$INPUT" -mindepth 1 -type f \( -iname "*.png" -o -iname "*.jpg" \) -printf '%P\n' 2>/dev/null)
+
+periksa_input "${LJKS[@]}"
+
+if "$OLAH"; then
+  olah_gambar "$INPUT" "${LJKS[@]}"
+  salin_template
+  INPUT="${TMPDIR}/2"
+fi
+
+echo 'Melakukan OMR.'
+"${OMRCHECKER[@]}" --inputDir "$INPUT" --outputDir "$OUTPUT" &>/dev/null
+
+rm -r "$TMPDIR"
+
+echo "Selesai. Hasil disimpan di ${OUTPUT}."
