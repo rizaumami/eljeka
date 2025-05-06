@@ -1,12 +1,14 @@
 # eljeka
 
-`eljeka` adalah skrip untuk otomasi [OMRChecker](https://github.com/Udayraj123/OMRChecker) dengan model LJK seperti dalam map samples/community/eljeka.
+> _eljeka semula dibuat karena OMRChecker tidak mampu mengolah lembar jawaban yang diisi dengan cara menyilang._  \
+> _Dan karena kini OMRChecker mampu melakukannya, maka manfaat eljeka berkurang tersisa pada template._  \
+> _Sepertinya saya tidak bisa melakukan PR ke upstream karena eljeka bukan semata template namun memerlukan beberapa `FIELD_TYPES` tersendiri._
 
-Jika menggunakan bentuk LJK berbeda, silakan rujuk [OMRChecker](https://github.com/Udayraj123/OMRChecker) dan [wikinya](https://github.com/Udayraj123/OMRChecker/wiki).
+`eljeka` adalah _template_ untuk  [OMRChecker](https://github.com/Udayraj123/OMRChecker) dengan model LJK (Lembar Jawaban Komputer) seperti dalam map [samples/community/eljeka](samples/community/eljeka).
 
-## Cara Penggunaan
+## Cara Pemasangan
 
-Berikut dicontohkan pemasangan `eljeka` dalam sistem Debian.
+Berikut dicontohkan pemasangan `eljeka` dalam sistem Debian dan turunannya.
 
 ### 1. Gandakan `eljeka`
 
@@ -17,79 +19,76 @@ Berikut dicontohkan pemasangan `eljeka` dalam sistem Debian.
 
 ### 2. Pasang paket dan pustaka yang diperlukan
 
-Anda bisa memasang paket python yang ada dalam lumbung paket distro menggunakan perintah seperti `sudo apt install python3-XXX`. Namun ketika skrip `eljeka` ditulis, saya tidak menemukan paket `python3-dotmap` di lumbung paket, `pip`, dan `pipx`. Jadi, cara berikut di bawah lebih disarankan.
+#### 2.1. Memasang pustaka secara global
+```bash
+sudo apt install build-essential cmake unzip pkg-config libjpeg-dev libpng-dev libtiff-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libatlas-base-dev gfortran python3-opencv python3-deepmerge python3-dotmap python3-jsonschema python3-matplotlib python3-numpy python3-pandas python3-rich python3-screeninfo
+```
 
-  ```
-  ./eljeka -d
-  ./eljeka -p
-  ```
+Karena `opencv-contrib-python` tidak ada dalam lumbung paket Debian, maka kita pasang menggunakan `pip`:
 
-### 3. Jalankan `eljeka`
+```bash
+python3 -m venv .venv
+.venv/bin/pip3 install opencv-contrib-python
+```
+
+#### 2.2. Memasang pustaka secara lokal
+
+```bash
+sudo apt install build-essential cmake unzip pkg-config libjpeg-dev libpng-dev libtiff-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libatlas-base-dev gfortran
+```
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip3 install opencv-python
+.venv/bin/pip3 install opencv-contrib-python
+.venv/bin/pip3 install -r requirements.txt
+```
+
+## Cara Penggunaan
 
 ```
-$ ./eljeka -h
+~$ python3 main.py -h
 
-  eljeka adalah skrip alat bantu OMRChecker untuk melakukan
-  Optical Markup Recognition (OMR) pada kertas Lembar Jawaban Komputer (LJK).
+usage: main.py [-h] [-i [INPUT_PATHS ...]] [-d] [-o OUTPUT_DIR] [-a] [-l]
 
-  Penggunaan: eljeka PILIHAN
-
-  PILIHAN:
-    -d              Pasang paket yang dibutuhkan.
-    -h              Tampilkan pesan ini.
-    -i INPUT_DIR    Letak gambar LJK yang akan di-OMR.
-    -o OUTPUT_DIR   Letak hasil OMR akan disimpan.
-    -p              Pasang pustaka python yang dibutuhkan ke /home/iza/.pip.
-    -r              Langsung OMR tanpa mengolah gambar terlebih dahulu.
-    -v              Tampilkan versi skrip.
-
-  Setiap direktori input harus memiliki template.json.
-
-  Jika dijalankan tanpa argumen -i atau -o maka skrip akan menggunakan:
-  -i di /tmp/eljeka/inputs
-  -o di /tmp/eljeka/outputs
-
-  Apa yang skrip ini lakukan adalah sebagai berikut:
-  1. Mengubah gambar LJK menjadi hitam putih.
-  2. Menebalkan bagian hitam agar lebih mudah di-OMR.
-  3. Melakukan OMR.
-
-
-  Contoh:
-    - Melakukan OMR pada berkas hasil pemindaian yang terletak dalam ~/IPA:
-
-      $ eljeka -i /home/iza/IPA
-
-    - Menyimpan hasil OMR ke dalam map /home/iza/NILAI_IPA:
-
-      $ eljeka -o /home/iza/NILAI_IPA
-
-    - Melakukan OMR pada berkas hasil pemindaian yang terletak dalam ~/IPA
-      dan menyimpan hasilnya ke dalam map /home/iza/NILAI_IPA:
-
-      $ eljeka -i /home/iza/IPA -o /home/iza/NILAI_IPA
-
-    - Jika ada berkas yang tidak sempurna di-OMR misal karena jawaban terdeteksi
-      ganda, gunakan argumen -r untuk langsung melakukan OMR tanpa mengolah
-      gambar terlebih dahulu.
-      Mungkin diperlukan untuk menyunting gambar input secara manual.
-
-      $ eljeka -i /home/iza/IPA -r
-
-  eljeka hanyalah skrip pembantu (helper/wrapper script) untuk otomasi
-  OMR model LJK seperti tampak dalam map samples/community/eljeka.
-
-  Jika mempunyai bentuk LJK berbeda, silakan rujuk
-  https://github.com/Udayraj123/OMRChecker untuk langsung menggunakan
-  OMRChecker dan atau membuat template.json sendiri.
-
+options:
+  -h, --help            show this help message and exit
+  -i, --inputDir [INPUT_PATHS ...]
+                        Specify an input directory.
+  -d, --debug           Enables debugging mode for showing detailed errors
+  -o, --outputDir OUTPUT_DIR
+                        Specify an output directory.
+  -a, --autoAlign       (experimental) Enables automatic template alignment - use if the scans show slight
+                        misalignments.
+  -l, --setLayout       Set up OMR template layout - modify your json file and run again until the template is set.
 ```
+
+Jika dijalankan tanpa memberikan argumen `-i` atau `-o` maka secara asali akan menggunakan:
+- `-i` di map `inputs`
+- `-o` di map `outputs`
+
+### Contoh Penggunaan:
+
+- Melakukan OMR pada berkas hasil pemindaian yang terletak dalam /tmp/IPAS:
+
+	```
+	~$ python3 main.py -i /tmp/IPAS
+	```
+
+-  Menyimpan hasil OMR ke dalam map /tmp/NILAI_IPAS:
+
+	```
+    ~$ python3 main.py -o /tmp/NILAI_IPAS
+	```
+
+- Melakukan OMR pada berkas hasil pemindaian yang terletak dalam /tmp/IPAS dan menyimpan hasilnya ke dalam map /tmp/NILAI_IPAS:
+
+	```
+	~$ python3 main.py -i /tmp/IPAS -o /tmp/NILAI_IPAS
+	```
 
 ## Catatan
 
-Catatan ini hanya untuk contoh LJK dalam [samples/community/eljeka](samples/community/eljeka).
-
-- Karena OMRChecker belum mendukung _auto alignment_ untuk _marker_ yang digunakan, maka LJK harus dipindai menggunakan pemindai (_scanner_) khusus dan tidak bisa menggunakan cara lain seperti kamera telepon genggam.
-- LJK dipindai ke dalam berkas JPEG berukuran 1654 x 2338 px dengan resolusi 200 dpi.
-- _Template_ harus ada di direktori teratas (_root directory_) input. Jika input terdiri dari banyak _sub folder_ namun memiliki bentuk LJK yang sama, maka _template_ bisa hanya satu di _root directory_. Namun jika _sub folder-sub folder_ tersebut berbeda bentuk, maka _template harus ada dalam tiap _sub folder_ tersebut.
-- Python `ENV` yang digunakan bisa disesuaikan dengan menyunting berkas [`eljeka`](eljeka) baris ke-63 (variabel `OMRCHECKER`).
+- Karena OMRChecker belum mendukung _auto alignment_ untuk _marker_ yang digunakan (berbentuk persegi), maka LJK harus dipindai menggunakan pemindai (_scanner_) khusus dan tidak bisa menggunakan cara lain seperti kamera telepon genggam.
+- LJK dipindai ke dalam berkas JPEG berukuran 1654 x 2338 px dengan kerapatan 200 dpi.
+- _Template_ harus ada di direktori teratas (_root directory_) input. Jika input terdiri dari banyak _sub folder_ namun memiliki bentuk LJK yang sama, maka _template_ bisa hanya satu di _root directory_. Namun jika _sub folder-sub folder_ tersebut berbeda bentuk, maka _template_ harus ada dalam tiap _sub folder_ tersebut.
