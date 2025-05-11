@@ -1,112 +1,140 @@
 {
-  "pageDimensions": [ 1654, 2338 ],
-  "bubbleDimensions": [ 20, 20 ],
-  "customLabels": {},
+  "pageDimensions": [ 1240, 1754 ],
+  "bubbleDimensions": [ 17, 17 ],
+  "preProcessors": [
+    {
+      "name": "Levels",
+      "options": {
+        "gamma": 0.5,
+        "high": 0.8,
+        "low": 0
+      }
+    }
+  ],
+  "customLabels": {
+    "Peserta Ujian": [ "l1..20" ],
+    "Tanggal Lahir": [ "d1..6" ],
+    "Nomor Ujian": [ "n1..13" ],
+    "Mata Ujian": [ "mp1..3" ]
+  },
+  "outputColumns": [ "Peserta Ujian", "Tanggal Lahir", "Nomor Ujian", "Mata Ujian", "q1..40" ],
+  "emptyValue": " ",
   "fieldBlocks": {
-    "MCQBlock1": {
-      "fieldType": "QTYPE_LETTER",
-      "origin": [ 55, 695 ],
-      "fieldLabels": ["l0", "l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12", "l13", "l14", "l15", "l16", "l17", "l18", "l19"],
-      "bubblesGap": 37.5,
-      "labelsGap": 37.2
+    "NamaPeserta": {
+      "description": "Nama murid peserta ujian.",
+      "origin": [ 58, 540 ],
+      "bubbleValues": [ "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z" ],
+      "direction": "vertical",
+      "fieldLabels": [ "l1..20" ],
+      "bubblesGap": 28,
+      "labelsGap": 28
     },
-    "MCQBlock2": {
+    "NomorPeserta": {
+      "description": "Nomor peserta ujian.",
       "fieldType": "QTYPE_INT",
-      "origin": [ 820, 735 ],
-      "fieldLabels": ["n0", "n1", "n2", "n3", "n4", "n5", "n6", "n7", "n8", "n9", "n10", "n11", "n12"],
-      "bubblesGap": 37.5,
-      "labelsGap": 37.5
+      "origin": [ 632, 568 ],
+      "fieldLabels": [ "n1..13" ],
+      "bubblesGap": 28,
+      "labelsGap": 28
     },
-    "MCQBlock3": {
+    "TanggalLahir": {
+      "description": "Tanggal lahir peserta ujian.",
       "fieldType": "QTYPE_INT",
-      "origin": [ 1325, 735 ],
-      "fieldLabels": ["d0", "d1", "d2", "d3", "d4", "d5"],
-      "bubblesGap": 37.5,
-      "labelsGap": 37.5
+      "origin": [ 1013, 568 ],
+      "fieldLabels": [ "d1..6" ],
+      "bubblesGap": 28,
+      "labelsGap": 28
     },
-    "MCQBlock4": {
-      "fieldType": "QTYPE_MAPEL1",
-      "origin": [ 822, 1195 ],
+    "MataUjian1": {
+      "description": "Kolom 1 mata pelajaran yang diujikan.",
+      "origin": [ 635, 914 ],
       "fieldLabels": ["mp1"],
-      "bubblesGap": 42,
-      "labelsGap": 42
+      "bubbleValues": [ "Bahasa Indonesia", "Bahasa Inggris", "Pendidikan Jasmani Olahraga dan Kesehatan" ],
+      "direction": "vertical",
+      "bubblesGap": 30,
+      "labelsGap": 30
     },
-    "MCQBlock5": {
-      "fieldType": "QTYPE_MAPEL2",
-      "origin": [ 1045, 1195 ],
+    "MataUjian2": {
+      "description": "Kolom 2 mata pelajaran yang diujikan.",
+      "origin": [ 802, 914 ],
       "fieldLabels": ["mp2"],
-      "bubblesGap": 42,
-      "labelsGap": 42
+      "bubbleValues": [ "Matematika", "Pendidikan Pancasila", "Seni Rupa" ],
+      "direction": "vertical",
+      "bubblesGap": 30,
+      "labelsGap": 30
     },
-    "MCQBlock6": {
-      "fieldType": "QTYPE_MAPEL3",
-      "origin": [ 1207, 1195 ],
+    "MataUjian3": {
+      "description": "Kolom 3 mata pelajaran yang diujikan.",
+      "origin": [ 985, 914 ],
       "fieldLabels": ["mp3"],
-      "bubblesGap": 42,
-      "labelsGap": 42
+      "bubbleValues": [ "Bahasa Sunda", "Pendidikan Agama dan Budi Pekerti", "Ilmu Pengetahuan Alam dan Sosial" ],
+      "direction": "vertical",
+      "bubblesGap": 30,
+      "labelsGap": 30
     },
-    "MCQBlock7": {
-      "fieldType": "QTYPE_MAPEL4",
-      "origin": [ 1290, 1195 ],
-      "fieldLabels": ["mp4"],
-      "bubblesGap": 42,
-      "labelsGap": 42
-    },
-    "MCQBlock8": {
+    "BlokSoal1": {
+      "description": "Jawaban nomor 1 s.d. 5.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 190, 1788 ],
-      "fieldLabels": ["q1", "q2", "q3", "q4", "q5"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 162, 1358 ],
+      "fieldLabels": [ "q1..5" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock9": {
+    "BlokSoal2": {
+      "description": "Jawaban nomor 6 s.d. 10.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 190, 1995 ],
-      "fieldLabels": ["q6", "q7", "q8", "q9", "q10"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 162, 1514 ],
+      "fieldLabels": [ "q6..10" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock10": {
+    "BlokSoal3": {
+      "description": "Jawaban nomor 11 s.d. 15.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 555, 1788 ],
-      "fieldLabels": ["q11", "q12", "q13", "q14", "q15"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 435, 1358 ],
+      "fieldLabels": [ "q11..15" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock11": {
+    "BlokSoal4": {
+      "description": "Jawaban nomor 16 s.d. 20.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 555, 1995 ],
-      "fieldLabels": ["q16", "q17", "q18", "q19", "q20"],
-      "bubblesGap": 37,
-      "labelsGap": 37
+      "origin": [ 435, 1514 ],
+      "fieldLabels": [ "q16..20" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock12": {
+    "BlokSoal5": {
+      "description": "Jawaban nomor 21 s.d. 25.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 920, 1788 ],
-      "fieldLabels": ["q21", "q22", "q23", "q24", "q25"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 710, 1358 ],
+      "fieldLabels": [ "q21..25" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock13": {
+    "BlokSoal6": { 
+      "description": "Jawaban nomor 26 s.d. 30.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 920, 1995 ],
-      "fieldLabels": ["q26", "q27", "q28", "q29", "q30"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 710, 1512 ],
+      "fieldLabels": [ "q26..30" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock14": {
+    "BlokSoal7": {
+      "description": "Jawaban nomor 31 s.d. 35.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 1287, 1788 ],
-      "fieldLabels": ["q31", "q32", "q33", "q34", "q35"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 985, 1358 ],
+      "fieldLabels": [ "q31..35" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     },
-    "MCQBlock15": {
+    "BlokSoal8": {
+      "description": "Jawaban nomor 36 s.d. 40.",
       "fieldType": "QTYPE_MCQ4",
-      "origin": [ 1287, 1995 ],
-      "fieldLabels": ["q36", "q37", "q38", "q39", "q40"],
-      "bubblesGap": 37,
-      "labelsGap": 36
+      "origin": [ 985, 1512 ],
+      "fieldLabels": [ "q36..40" ],
+      "bubblesGap": 26,
+      "labelsGap": 26
     }
   }
 }

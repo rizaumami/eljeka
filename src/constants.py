@@ -40,26 +40,6 @@ FIELD_TYPES = {
     #
     # You can create and append custom field types here-
     #
-    'QTYPE_LETTER': {
-        'bubbleValues': ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
-        "direction": "vertical"
-    },
-    'QTYPE_MAPEL1': {
-        'bubbleValues': ['Bahasa Indonesia', 'Bahasa Inggris', 'PJOK'],
-        "direction": "vertical"
-    },
-    'QTYPE_MAPEL2': {
-        'bubbleValues': ['Matematika', 'PPKn', 'SBdP'],
-        "direction": "vertical"
-    },
-    'QTYPE_MAPEL3': {
-        'bubbleValues': ['IPA', 'IPS'],
-        "direction": "vertical"
-    },
-    'QTYPE_MAPEL4': {
-        'bubbleValues': ['Bahasa Sunda', 'PAdBP'],
-        "direction": "vertical"
-    }
 }
 
 # TODO: move to interaction.py
